@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/message_model.dart';
@@ -16,6 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late User otherUser;
   List<Message> messages = [];
   bool _isInitialized = false;
+  bool _isTyping = false;
 
   @override
   void didChangeDependencies() {
@@ -57,10 +59,20 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
     _loadMessages();
     
-    // Simulate a reply
-    Future.delayed(const Duration(seconds: 1), () {
+    // Simulate a reply with variable delay
+    setState(() {
+      _isTyping = true;
+    });
+
+    final randomDelay = 1000 + Random().nextInt(2000); // 1-3 seconds delay
+
+    Future.delayed(Duration(milliseconds: randomDelay), () {
       if (mounted) {
-        MockService.receiveMockReply(otherUser.id, "I received: '$text'");
+        final replyText = MockService.generateAutoReply(text);
+        MockService.receiveMockReply(otherUser.id, replyText);
+        setState(() {
+          _isTyping = false;
+        });
         _loadMessages();
       }
     });
@@ -82,7 +94,17 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Text(otherUser.name[0], style: const TextStyle(fontSize: 12)),
             ),
             const SizedBox(width: 10),
-            Text(otherUser.name),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(otherUser.name, style: const TextStyle(fontSize: 16)),
+                if (_isTyping)
+                  const Text(
+                    "typing...",
+                    style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

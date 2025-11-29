@@ -1,8 +1,10 @@
+import 'dart:math';
 import '../models/user_model.dart';
 import '../models/message_model.dart';
 
 class MockService {
   static User? currentUser;
+  static final Random _random = Random();
 
   static final List<User> users = [
     const User(id: '1', name: 'Alice', avatarUrl: 'https://i.pravatar.cc/150?u=1'),
@@ -26,6 +28,25 @@ class MockService {
       text: 'I am good Bob! Thanks for asking.',
       timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
     ),
+  ];
+
+  static final List<String> _randomPhrases = [
+    "That's interesting!",
+    "Tell me more.",
+    "I see.",
+    "Cool.",
+    "How's it going?",
+    "Nice!",
+    "Really?",
+    "Okay.",
+    "Sounds good.",
+    "What do you mean?",
+    "I'm listening.",
+    "Go on...",
+    "Haha, that's funny!",
+    "I was thinking the same thing.",
+    "Can we talk about this later?",
+    "Absolutely!",
   ];
 
   static void login(String name) {
@@ -68,5 +89,28 @@ class MockService {
       timestamp: DateTime.now(),
     );
     messages.add(reply);
+  }
+
+  static String generateAutoReply(String message) {
+    final lowerMsg = message.toLowerCase();
+    
+    if (lowerMsg.contains('hello') || lowerMsg.contains('hi') || lowerMsg.contains('hey')) {
+      return "Hey there! How are you doing?";
+    }
+    if (lowerMsg.contains('how are you')) {
+      return "I'm doing great, thanks for asking! And you?";
+    }
+    if (lowerMsg.contains('bye') || lowerMsg.contains('goodbye')) {
+      return "See you later! Have a nice day.";
+    }
+    if (lowerMsg.contains('name')) {
+      return "I'm a mock user, but you can call me friend.";
+    }
+    if (lowerMsg.contains('?')) {
+      final answers = ["Yes, absolutely.", "No, I don't think so.", "Maybe.", "I'm not sure about that.", "Definitely!"];
+      return answers[_random.nextInt(answers.length)];
+    }
+    
+    return _randomPhrases[_random.nextInt(_randomPhrases.length)];
   }
 }
